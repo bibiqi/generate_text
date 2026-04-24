@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title> Text Generator </title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon1.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .cute-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            border: 3px dashed #81c784; 
+            box-shadow: 0 15px 35px rgba(165, 214, 167, 0.4);
+        }
+        
+        .form-control, .form-range {
+            border-radius: 18px;
+        }
+
+        .form-control {
+            border: 2px solid #c8e6c9; 
+            background-color: #fafffa;
+            padding: 12px 15px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .form-control:focus {
+            border-color: #81c784; 
+            box-shadow: 0 0 0 0.25rem rgba(129, 199, 132, 0.3);
+            outline: none;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            background: #2e7d32;
+        }
+        input[type=range]::-moz-range-thumb {
+            background: #2e7d32;
+        }
+        
+        .btn-cute {
+            background: linear-gradient(45deg, #81c784 0%, #c8e6c9 100%);
+            border: none;
+            border-radius: 50px;
+            color: #1b5e20; 
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(129, 199, 132, 0.4);
+            letter-spacing: 1px;
+        }
+        
+        .btn-cute:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(129, 199, 132, 0.6);
+            color: #1b5e20;
+        }
+        
+        h3 { color: #2e7d32; font-weight: 700; }
+        label { color: #388e3c; font-weight: 600; }
+        
+        #result {
+            background-color: #f1f8e9 !important; 
+            border: 2px solid #c8e6c9 !important; 
+            border-radius: 20px !important;
+            color: #555;
+            font-size: 1.05rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card cute-card p-4">
+                <div class="card-body">
+                    
+                    <div class="text-center mb-4">
+                        <h3>GPT2 - Text Generator</h3>
+                        <p class="text-muted" style="font-size: 0.95rem;"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">✧ what do u want to write? ✧</label>
+                        <textarea id="prompt" class="form-control" rows="3" placeholder="Typing something..."></textarea>
+                    </div>
+                    <div class="mb-4">
+                            <label class="form-label">✧ customize parameters ✧</label>
+                        </div>
+                    <div class="row g-3 mb-4 p-4" style="background-color: #fafffa; border: 2px solid #c8e6c9; border-radius: 18px;">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted mb-1" style="font-size: 0.85rem;">Max Tokens</label>
+                            <input type="number" id="max_tokens" class="form-control form-control-sm" value="60">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted mb-1" style="font-size: 0.85rem;">Top K: <span id="topk_val" class="fw-bold text-success">40</span></label>
+                            <input type="range" id="top_k" class="form-range" min="10" max="100" step="10" value="40" oninput="document.getElementById('topk_val').innerText = this.value">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted mb-1" style="font-size: 0.85rem;">Temperature: <span id="temp_val" class="fw-bold text-success">0.4</span></label>
+                            <input type="range" id="temperature" class="form-range" min="0.1" max="1.0" step="0.1" value="0.4" oninput="document.getElementById('temp_val').innerText = this.value">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted mb-1" style="font-size: 0.85rem;">Repetition Penalty: <span id="rep_val" class="fw-bold text-success">1.2</span></label>
+                            <input type="range" id="repetition_penalty" class="form-range" min="1.0" max="2.0" step="0.1" value="1.2" oninput="document.getElementById('rep_val').innerText = this.value">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-cute w-100 py-3 mt-2" onclick="generateText()">
+                         Generate 
+                    </button>
+
+                    <hr class="my-4" style="border-top: 2px dashed #81c784; background: transparent;">
+
+                    <h5 class="mb-3" style="color: #2e7d32; font-weight: 600;"> Results:</h5>
+                    <div id="result" class="p-4" style="white-space: pre-wrap; min-height: 120px;">
+                        (wait to submit...)
+                    </div>
+                    <div id="time-taken" class="text-muted text-end mt-2" style="font-size: 0.85rem; font-style: italic;"></div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function generateText() {
+    const prompt = document.getElementById("prompt").value;
+    const maxTokens = document.getElementById("max_tokens").value;
+    const temperature = document.getElementById("temperature").value;
+    const topK = document.getElementById("top_k").value;
+    const repPenalty = document.getElementById("repetition_penalty").value;
+    
+    const resultDiv = document.getElementById("result");
+    const timeDiv = document.getElementById("time-taken");
+
+    resultDiv.innerHTML = "<em>𓂃 đang chạy thuật toán 𓂃</em>";
+    timeDiv.innerText = "";
+
+    try {
+        const response = await fetch("/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                prompt: prompt,
+                max_length: parseInt(maxTokens),
+                temperature: parseFloat(temperature),
+                top_k: parseInt(topK),
+                repetition_penalty: parseFloat(repPenalty)
+            })
+        });
+
+        const data = await response.json();
+        
+        if(data.success !== undefined) {
+            resultDiv.innerText = data.success ? data.text : "Lỗi: " + data.error;
+        } else {
+            resultDiv.innerText = data.generated_text || "⊘ oops, error ⊘";
+        }
+
+        if (data.execution_time) {
+            timeDiv.innerText = `⏱ render time: ${data.execution_time}s ✧`;
+        }
+    } catch (error) {
+        resultDiv.innerText = "◷ waiting for server ◷";
+    }
+}
+</script>
+
+</body>
+</html>
